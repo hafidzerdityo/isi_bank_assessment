@@ -3,7 +3,7 @@ package dao
 import "time"
 
 type KafkaConsumer struct {
-	TanggalTransaksi time.Time `json:"no_rekening_asal"`
+	TanggalTransaksi time.Time `json:"tanggal_transaksi"`
 	NoRekeningKredit string    `json:"no_rekening_kredit"`
 	NoRekeningDebit  string    `json:"no_rekening_debit"`
 	NominalKredit    float64   `json:"nominal_kredit"`
