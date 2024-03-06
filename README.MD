@@ -26,10 +26,10 @@
 
    - Create `kafka_config.env` (For Kafka Topic and Broker):
 
-   ```plaintext
-   TOPIC=jurnalku
-   BROKER=kafka:9092
-   ```
+     ```plaintext
+     TOPIC=jurnalku
+     BROKER=kafka:9092
+     ```
 
    Feel free to change the values in the `.env` files based on your needs.
 
@@ -47,11 +47,11 @@
 
    - Create `kafka_config.env` (For Kafka Topic and Broker):
 
-   ```plaintext
-   TOPIC=jurnalku
-   BROKER=kafka:9092
-   GROUP=consumerku
-   ```
+     ```plaintext
+     TOPIC=jurnalku
+     BROKER=kafka:9092
+     GROUP=consumerku
+     ```
 
    Feel free to change the values in the `.env` files based on your needs.
 
@@ -59,16 +59,16 @@
 
    - Create `config.env` (For docker-compose config):
 
-   ```plaintext
-   KAFKA_URL=kafka
-   KAFKA_PORT=9092
-   KAFKA_URL2=localhost
-   KAFKA_PORT2=29092
-   SERVICE_PORT_ACCOUNT=8100
-   SERVICE_PORT_JOURNAL=8101
-   DB_ACCOUNT_PORT=8103
-   DB_JOURNAL_PORT=8104
-   ```
+     ```plaintext
+     KAFKA_URL=kafka
+     KAFKA_PORT=9092
+     KAFKA_URL2=localhost
+     KAFKA_PORT2=29092
+     SERVICE_PORT_ACCOUNT=8100
+     SERVICE_PORT_JOURNAL=8101
+     DB_ACCOUNT_PORT=8103
+     DB_JOURNAL_PORT=8104
+     ```
 
    Feel free to change the values in the `.env` files based on your needs.
 
