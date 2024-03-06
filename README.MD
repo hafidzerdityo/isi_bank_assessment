@@ -57,7 +57,7 @@
 
 4. On the root folder, create the following `.env` files for configuration:
 
-   - Create `config.env` (For docker-compose config):
+   - Create `.env` (For docker-compose config):
 
      ```plaintext
      KAFKA_URL=kafka
