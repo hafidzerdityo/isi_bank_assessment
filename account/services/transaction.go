@@ -330,13 +330,31 @@ func (s *ServiceSetup)CreateTransfer(reqPayload dao.CreateTransferReq) (appRespo
 		return
 	}
 
-	// create catatan transfer
+	catatanTime := time.Now()
+
+	// create catatan transfer sender
 	var insertCatatanParam dao.Transaction
 	insertCatatanParam.IdRekening = accountSenderData.ID
 	insertCatatanParam.JenisTransaksi = "T"
 	insertCatatanParam.Nominal = reqPayload.Nominal
-	insertCatatanParam.Waktu = time.Now()
+	insertCatatanParam.Waktu = catatanTime
 	insertCatatanParam.NomorRekeningTujuan = &accountReceiverData.NoRekening
+	err = s.Datastore.InsertCatatan(tx, insertCatatanParam)
+	if err != nil {
+		tx.Rollback()
+		remark = "Data Insertion Error"
+		s.Logger.Error(
+			logrus.Fields{"error": err.Error()}, nil, remark,
+		)
+		return
+	}
+
+	// create catatan transfer receiver
+	insertCatatanParam.IdRekening = accountReceiverData.ID
+	insertCatatanParam.JenisTransaksi = "T"
+	insertCatatanParam.Nominal = reqPayload.Nominal
+	insertCatatanParam.Waktu = catatanTime
+	insertCatatanParam.NomorRekeningTujuan = nil
 	err = s.Datastore.InsertCatatan(tx, insertCatatanParam)
 	if err != nil {
 		tx.Rollback()
