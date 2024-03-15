@@ -5,8 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.Account
-    image: account_service_i:latest
-    container_name: account_service_c
+    image: account_service:latest
+    container_name: account_service
     env_file:
       - .env
     ports:
@@ -19,7 +19,7 @@ services:
 
   postgres_account_go:
     image: postgres:latest
-    container_name: pg_account_go_c
+    container_name: pg_account_go
     restart: always
     env_file:
       - ./account/config.env
@@ -34,8 +34,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.Journal
-    image: journal_service_i:latest
-    container_name: journal_service_c
+    image: journal_service:latest
+    container_name: journal_service
     env_file:
       - .env
     ports:
@@ -48,7 +48,7 @@ services:
 
   postgres_journal_go:
     image: postgres:latest
-    container_name: pg_journal_go_c
+    container_name: pg_journal_go
     restart: always
     env_file:
       - ./journal/config.env
