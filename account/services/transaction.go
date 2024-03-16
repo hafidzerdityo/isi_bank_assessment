@@ -1,55 +1,13 @@
 package services
 
 import (
-	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
-	"github.com/segmentio/kafka-go"
 	"github.com/sirupsen/logrus"
 	"hafidzresttemplate.com/dao"
-	"hafidzresttemplate.com/startup"
 )
 
-func KafkaProducer(s *ServiceSetup, message dao.KafkaProducer) (err error) {
-
-    w := kafka.NewWriter(kafka.WriterConfig{
-        Brokers:  []string{startup.BROKER_KAFKA},
-        Topic:    startup.TOPIC_KAFKA,
-        Balancer: &kafka.LeastBytes{},
-    })
-
-    defer w.Close()
-
-    msgJSON, err := json.Marshal(message)
-
-    ctx := context.Background()
-
-    if err != nil {
-		remark := "Error When marshalling message" 
-		s.Logger.Error(
-			logrus.Fields{"kafka_message_error": err.Error()}, nil, remark,
-		)
-    }
-
-    err = w.WriteMessages(ctx, kafka.Message{Value: msgJSON})
-
-    if err != nil {
-		remark := "Error When writing Message" 
-		s.Logger.Error(
-			logrus.Fields{"kafka_message_error": err.Error()}, nil, remark,
-		)
-		return
-    }
-
-	remark := "Kafka Message Sent Succesfully"
-	s.Logger.Info(	
-		logrus.Fields{"kafka_message": fmt.Sprintf("%+v", message)}, nil, remark,
-	)
-
-    return
-}
 
 
 func (s *ServiceSetup)CreateTabung(reqPayload dao.CreateTabungTarikReq) (appResponse dao.SaldoRes, remark string, err error) {
@@ -120,7 +78,7 @@ func (s *ServiceSetup)CreateTabung(reqPayload dao.CreateTabungTarikReq) (appResp
 	kafkaMessageParam.NominalDebit = 0
 
 	// send message to kafka
-	err = KafkaProducer(s, kafkaMessageParam)
+	err = s.KafkaJournal.ProduceJournal(kafkaMessageParam)
 	if err != nil {
 		tx.Rollback()
 		remark = "Failed to send message to kafka"
@@ -222,7 +180,7 @@ func (s *ServiceSetup)CreateTarik(reqPayload dao.CreateTabungTarikReq) (appRespo
 	kafkaMessageParam.NominalDebit = insertCatatanParam.Nominal
 
 	// send message to kafka
-	err = KafkaProducer(s, kafkaMessageParam)
+	err = s.KafkaJournal.ProduceJournal(kafkaMessageParam)
 	if err != nil {
 		tx.Rollback()
 		remark = "Failed to send message to kafka"
@@ -375,7 +333,7 @@ func (s *ServiceSetup)CreateTransfer(reqPayload dao.CreateTransferReq) (appRespo
 	kafkaMessageParam.NominalDebit = insertCatatanParam.Nominal
 
 	// send message to kafka
-	err = KafkaProducer(s, kafkaMessageParam)
+	err = s.KafkaJournal.ProduceJournal(kafkaMessageParam)
 	if err != nil {
 		tx.Rollback()
 		remark = "Failed to send message to kafka"

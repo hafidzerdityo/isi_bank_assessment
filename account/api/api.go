@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 	"hafidzresttemplate.com/datastore"
 	"hafidzresttemplate.com/services"
+	"hafidzresttemplate.com/startup"
 )
 
 type ApiSetup struct {
@@ -14,7 +15,7 @@ type ApiSetup struct {
 	Services *services.ServiceSetup
 }
 
-func NewApiSetup(loggerInit *logrus.Logger, db *gorm.DB)(apiSet ApiSetup) {
+func NewApiSetup(loggerInit *logrus.Logger, db *gorm.DB, kafkaJournalInit startup.KafkaConfig)(apiSet ApiSetup) {
 	apiSet = ApiSetup{
 		Logger: loggerInit,
 		Services: &services.ServiceSetup{
@@ -23,18 +24,18 @@ func NewApiSetup(loggerInit *logrus.Logger, db *gorm.DB)(apiSet ApiSetup) {
 			Datastore: &datastore.DatastoreSetup{
 				Logger: loggerInit,
 			},
-			
+		KafkaJournal: kafkaJournalInit,
 		},
 		
 	}
     return 
 }
 
-func InitApi(loggerInit *logrus.Logger, db *gorm.DB)(app *fiber.App) {
+func InitApi(loggerInit *logrus.Logger, dbInit *gorm.DB, kafkaJournalInit startup.KafkaConfig)(app *fiber.App) {
 	app = fiber.New()
 	app.Use(logger.New())
 
-	apiSetup := NewApiSetup(loggerInit, db)
+	apiSetup := NewApiSetup(loggerInit, dbInit, kafkaJournalInit)
 	apiSetup.Logger.Info("Setting up api routes...")
 
 	api := app.Group("/api")

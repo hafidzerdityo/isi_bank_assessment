@@ -13,7 +13,7 @@ import (
 func main() {
 
 	loggerInit := logs.InitLog()
-	dbInit, err := startup.Startup(loggerInit)
+	dbInit, envInit, kafkaJournalInit, err := startup.Startup(loggerInit)
 	if err != nil{
 		remark := "Start Up Failed"
 		loggerInit.Error(
@@ -21,7 +21,7 @@ func main() {
 		)
 		return
 	}
-	app := api.InitApi(loggerInit, dbInit)
-	app.Listen(fmt.Sprintf("%v:%v",startup.HOST, startup.PORT))
+	app := api.InitApi(loggerInit, dbInit, kafkaJournalInit)
+	app.Listen(fmt.Sprintf("%v:%v", envInit.Host, envInit.Port))
 	loggerInit.Info("Service Started!")
 }

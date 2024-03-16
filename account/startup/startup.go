@@ -8,40 +8,45 @@ import (
 	"gorm.io/gorm"
 )
 
-var (
-	HOST         string
-	PORT         string
-	DB_USER      string
-	DB_NAME      string
-	DB_PASSWORD  string
-	DB_HOST      string
-	DB_PORT      string
-	BROKER_KAFKA string
-	TOPIC_KAFKA  string
-)
+type envValue struct{
+	Host         string
+	Port         string
+	DbUser      string
+	DbName      string
+	DbPassword  string
+	DbHost      string
+	DbPort      string
+	BrokerKafka string
+	TopicKafka  string
+}
 
-func Startup(loggerInit *logrus.Logger)(dbInit *gorm.DB, err error){
+
+func Startup(loggerInit *logrus.Logger)(dbInit *gorm.DB, envInit envValue, kafkaJournalInit KafkaConfig,  err error){
 	loggerInit.Info("Startup...")
 	godotenv.Load("service.env")
 	godotenv.Load("config.env")
 	godotenv.Load("kafka_config.env")
-	HOST = os.Getenv("SERVICE_HOST")
-	PORT = os.Getenv("SERVICE_PORT")
-	DB_USER = os.Getenv("POSTGRES_USER")
-	DB_NAME = os.Getenv("POSTGRES_DB")
-	DB_PASSWORD = os.Getenv("POSTGRES_PASSWORD")
-	DB_HOST = os.Getenv("POSTGRES_HOST")
-	DB_PORT = os.Getenv("POSTGRES_PORT")
-	BROKER_KAFKA = os.Getenv("BROKER")
-	TOPIC_KAFKA = os.Getenv("TOPIC")
+
+	envInit = envValue{
+		Host		: os.Getenv("SERVICE_HOST"),
+		Port        : os.Getenv("SERVICE_PORT"),
+		DbUser      : os.Getenv("POSTGRES_USER"),
+		DbName      : os.Getenv("POSTGRES_DB"),
+		DbPassword  : os.Getenv("POSTGRES_PASSWORD"),
+		DbHost      : os.Getenv("POSTGRES_HOST"),
+		DbPort      : os.Getenv("POSTGRES_PORT"),
+		BrokerKafka : os.Getenv("BROKER"),
+		TopicKafka  : os.Getenv("TOPIC"),
+	}
+
 
 	loggerInit.Info("Initialize Database...")
 	dbInit, err = InitializeDB(
-		DB_USER,
-		DB_NAME,
-		DB_PASSWORD,
-		DB_HOST,
-		DB_PORT,
+		envInit.DbUser,
+		envInit.DbName,
+		envInit.DbPassword,
+		envInit.DbHost,
+		envInit.DbPort,
 	)
 	if err != nil{
 		remark := "Error when initializing Database"
@@ -54,8 +59,8 @@ func Startup(loggerInit *logrus.Logger)(dbInit *gorm.DB, err error){
 	loggerInit.Info("Initialize Kafka Topic...")
 	err = CreateKafkaTopic(
 		loggerInit,
-		BROKER_KAFKA,
-		TOPIC_KAFKA,
+		envInit.BrokerKafka,
+		envInit.TopicKafka,
 	)
 	if err != nil{
 		remark := "Error when initializing Kafka Topic"
@@ -63,6 +68,12 @@ func Startup(loggerInit *logrus.Logger)(dbInit *gorm.DB, err error){
 			logrus.Fields{"error": err.Error()}, nil, remark,
 		)
 		return
+	}
+
+	kafkaJournalInit = KafkaConfig{
+		Logger: loggerInit,
+		Broker: envInit.BrokerKafka,
+		Topic: envInit.TopicKafka,
 	}
 
 	return
