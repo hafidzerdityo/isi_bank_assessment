@@ -9,6 +9,7 @@ type Customer struct{
 	Nama          string    `gorm:"size:255;not null"`
 	Nik          string    `gorm:"size:255;not null;unique"`
 	NoHp          string    `gorm:"size:255;not null;unique"`
+	Email          string    `gorm:"size:255;not null;unique"`
 	CreatedAt     time.Time 
     UpdatedAt     *time.Time `gorm:"autoUpdateTime:false"`
     IsDeleted     bool 
@@ -20,6 +21,7 @@ type Account struct{
 	IdNasabah          int       `gorm:"not null"`
 	NoRekening          string    `gorm:"size:255;not null;unique"`
 	HashedPin          string    `gorm:"size:255;not null"`
+	HashedPassword          string    `gorm:"size:255;not null"`
 	Saldo      float64     `gorm:"type:numeric(10,2);not null"`
 	CreatedAt     time.Time 
     UpdatedAt     *time.Time `gorm:"autoUpdateTime:false"`

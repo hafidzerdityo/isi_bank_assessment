@@ -58,6 +58,13 @@ func ValidatePhoneNumber(phoneNumber string) (string, bool) {
 	return phoneNumber, match
 }
 
+func ValidateEmail(email string) bool {
+	// Regular expression for validating email format
+	regex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+	match, _ := regexp.MatchString(regex, email)
+	return match
+}
+
 func GenerateNumericUUID(length int) string {
 	rand.Seed(time.Now().UnixNano())
 

@@ -61,18 +61,17 @@ func (s *ServiceSetup)CreateUser(reqPayload dao.CreateCustReq) (appResponse dao.
 	customerInsertParam.Nama = strings.ToUpper(reqPayload.Nama)
 	customerInsertParam.Nik = reqPayload.Nik
 	customerInsertParam.NoHp = reqPayload.NoHp
-
-	getHashedPin, err := utils.HashPassword(reqPayload.Pin)
-	if err != nil {
+	isValidEmail := utils.ValidateEmail(reqPayload.Email)
+	if !isValidEmail{
 		tx.Rollback()
-		remark = "Error when Hashing PIN"
+		err = fmt.Errorf("email validation error")
+		remark = "Format E-Mail Tidak Sesuai" 
 		s.Logger.Error(
-			logrus.Fields{"error": err.Error()}, nil, remark,
+			logrus.Fields{"validation_error": err.Error()}, nil, remark,
 		)
 		return
 	}
-
-	
+	customerInsertParam.Email = reqPayload.Email
 	customerInsertParam.CreatedAt = time.Now()
 	customerInsertParam.UpdatedAt = nil
 	customerInsertParam.IsDeleted = false
@@ -121,8 +120,27 @@ func (s *ServiceSetup)CreateUser(reqPayload dao.CreateCustReq) (appResponse dao.
 
 	var accountInsertParam dao.Account
 	accountInsertParam.IdNasabah = customerData.ID
-	noRekening := utils.GenerateNumericUUID(9)
+	getHashedPin, err := utils.HashPassword(reqPayload.Pin)
+	if err != nil {
+		tx.Rollback()
+		remark = "Error when Hashing PIN"
+		s.Logger.Error(
+			logrus.Fields{"error": err.Error()}, nil, remark,
+		)
+		return
+	}
 	accountInsertParam.HashedPin = getHashedPin
+	getHashedPassword, err := utils.HashPassword(reqPayload.Password)
+	if err != nil {
+		tx.Rollback()
+		remark = "Error when Hashing Password"
+		s.Logger.Error(
+			logrus.Fields{"error": err.Error()}, nil, remark,
+		)
+		return
+	}
+	accountInsertParam.HashedPassword = getHashedPassword
+	noRekening := utils.GenerateNumericUUID(9)
 	accountInsertParam.NoRekening = noRekening
 	accountInsertParam.Saldo = 0
 	accountInsertParam.CreatedAt = time.Now()
@@ -145,6 +163,111 @@ func (s *ServiceSetup)CreateUser(reqPayload dao.CreateCustReq) (appResponse dao.
 	tx.Commit()
 
 	remark = "END: CreateUser Service"
+	s.Logger.Info(
+		logrus.Fields{"response": fmt.Sprintf("%+v", appResponse)}, nil, remark,
+	)
+	return
+}
+
+
+func (s *ServiceSetup)AccountLogin(reqPayload dao.AccountLoginReq) (appResponse dao.AccountLoginRes, remark string, err error) {
+	reqPayloadForLog := reqPayload
+	reqPayloadForLog.Pin = "*REDACTED*"
+	s.Logger.Info(
+		logrus.Fields{"req_payload": fmt.Sprintf("%+v", reqPayloadForLog)}, nil, "START: AccountLogin Service",
+	)
+	tx := s.Db.Begin()
+	if tx.Error != nil {
+		remark = "Error When Initializing DB"
+		return
+	}
+
+	if !utils.IsDigit(reqPayload.Pin){
+		tx.Rollback()
+		err = fmt.Errorf("pin validation error")
+		remark = "Pin Must be a String of Digit" 
+		s.Logger.Error(
+			logrus.Fields{"validation_error": err.Error()}, nil, remark,
+		)
+		return
+	}
+
+	isValidEmail := utils.ValidateEmail(reqPayload.Email)
+	if !isValidEmail{
+		tx.Rollback()
+		err = fmt.Errorf("email validation error")
+		remark = "Format E-Mail Tidak Sesuai" 
+		s.Logger.Error(
+			logrus.Fields{"validation_error": err.Error()}, nil, remark,
+		)
+		return
+	}
+
+	// check if email exist
+	loginData, err := s.Datastore.CheckEmailAndGetHashedPassword(s.Db, reqPayload)
+	if err != nil {
+		tx.Rollback()
+		remark = "Data Get Error"
+		s.Logger.Error(
+			logrus.Fields{"error": err.Error()}, nil, remark,
+		)
+		return
+	}
+	if loginData.ID == 0{
+		tx.Rollback()
+		err = fmt.Errorf("email not found error")
+		remark = "Email tidak ditemukan" 
+		s.Logger.Error(
+			logrus.Fields{"validation_error": err.Error()}, nil, remark,
+		)
+		return
+	}
+
+	// check if pin correct
+	err = utils.VerifyPassword(reqPayload.Pin, loginData.HashedPin)
+	if err != nil{
+		tx.Rollback()
+		err = fmt.Errorf("wrong pin error")
+		remark = "pin salah" 
+		s.Logger.Error(
+			logrus.Fields{"validation_error": err.Error()}, nil, remark,
+		)
+		return
+	}
+	// check if password correct
+	err = utils.VerifyPassword(reqPayload.Password, loginData.HashedPassword)
+	if err != nil{
+		tx.Rollback()
+		err = fmt.Errorf("wrong password error")
+		remark = "password salah" 
+		s.Logger.Error(
+			logrus.Fields{"validation_error": err.Error()}, nil, remark,
+		)
+		return
+	}
+
+	// generate token
+	var JWTFieldParam dao.JWTField
+	JWTFieldParam.Email = reqPayload.Email
+	JWTFieldParam.NoRekening = loginData.NoRekening
+	JWTFieldParam.NoHp = loginData.NoHp
+	tokenString, err := utils.CreateJWTToken(JWTFieldParam)
+	if err != nil{
+		tx.Rollback()
+		err = fmt.Errorf("wrong password error")
+		remark = "password salah" 
+		s.Logger.Error(
+			logrus.Fields{"validation_error": err.Error()}, nil, remark,
+		)
+		return
+	}
+
+	appResponse.AccessToken = tokenString
+	appResponse.TokenType = "bearer"
+
+	tx.Commit()
+
+	remark = "END: AccountLogin Service"
 	s.Logger.Info(
 		logrus.Fields{"response": fmt.Sprintf("%+v", appResponse)}, nil, remark,
 	)

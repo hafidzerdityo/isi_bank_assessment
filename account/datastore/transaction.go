@@ -36,7 +36,7 @@ func (d *DatastoreSetup) GetAccount(tx *gorm.DB, noRekening string) (datastoreRe
 }
 
 
-func(d *DatastoreSetup) UpdateSaldo(tx *gorm.DB, reqPayload dao.CreateTabungTarikReq)(saldo float64, err error){
+func(d *DatastoreSetup) UpdateSaldo(tx *gorm.DB, reqPayload dao.CreateTabungTarikUpdate)(saldo float64, err error){
 	d.Logger.Info(
 		logrus.Fields{"req_payload": fmt.Sprintf("%+v", reqPayload)}, nil, "START: UpdateSaldo Datastore",
 	)

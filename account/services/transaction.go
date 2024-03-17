@@ -10,7 +10,7 @@ import (
 
 
 
-func (s *ServiceSetup)CreateTabung(reqPayload dao.CreateTabungTarikReq) (appResponse dao.SaldoRes, remark string, err error) {
+func (s *ServiceSetup)CreateTabung(reqPayload dao.CreateTabungTarikUpdate) (appResponse dao.SaldoRes, remark string, err error) {
 	s.Logger.Info(
 		logrus.Fields{"req_payload": fmt.Sprintf("%+v", reqPayload)}, nil, "START: CreateTabung Service",
 	)
@@ -98,7 +98,7 @@ func (s *ServiceSetup)CreateTabung(reqPayload dao.CreateTabungTarikReq) (appResp
 }
 
 
-func (s *ServiceSetup)CreateTarik(reqPayload dao.CreateTabungTarikReq) (appResponse dao.SaldoRes, remark string, err error) {
+func (s *ServiceSetup)CreateTarik(reqPayload dao.CreateTabungTarikUpdate) (appResponse dao.SaldoRes, remark string, err error) {
 	s.Logger.Info(
 		logrus.Fields{"req_payload": fmt.Sprintf("%+v", reqPayload)}, nil, "START: CreateTarik Service",
 	)
@@ -139,7 +139,7 @@ func (s *ServiceSetup)CreateTarik(reqPayload dao.CreateTabungTarikReq) (appRespo
 	}
 
 	// update account saldo (decrease)
-	var decreaseSaldoParam dao.CreateTabungTarikReq
+	var decreaseSaldoParam dao.CreateTabungTarikUpdate
 	decreaseSaldoParam.Nominal = -1 * reqPayload.Nominal
 	decreaseSaldoParam.NoRekening = reqPayload.NoRekening
 	saldo, err := s.Datastore.UpdateSaldo(tx, decreaseSaldoParam)
@@ -200,7 +200,7 @@ func (s *ServiceSetup)CreateTarik(reqPayload dao.CreateTabungTarikReq) (appRespo
 }
 
 
-func (s *ServiceSetup)CreateTransfer(reqPayload dao.CreateTransferReq) (appResponse dao.SaldoRes, remark string, err error) {
+func (s *ServiceSetup)CreateTransfer(reqPayload dao.CreateTransferUpdate) (appResponse dao.SaldoRes, remark string, err error) {
 	s.Logger.Info(
 		logrus.Fields{"req_payload": fmt.Sprintf("%+v", reqPayload)}, nil, "START: CreateTransfer Service",
 	)
@@ -260,7 +260,7 @@ func (s *ServiceSetup)CreateTransfer(reqPayload dao.CreateTransferReq) (appRespo
 	}
 
 	// update sender account saldo (decrease)
-	var decreaseSaldoParam dao.CreateTabungTarikReq 
+	var decreaseSaldoParam dao.CreateTabungTarikUpdate 
 	decreaseSaldoParam.NoRekening = reqPayload.NoRekeningAsal
 	decreaseSaldoParam.Nominal = -1 * reqPayload.Nominal
 
@@ -275,7 +275,7 @@ func (s *ServiceSetup)CreateTransfer(reqPayload dao.CreateTransferReq) (appRespo
 	}
 	
 	// update account saldo (increase)
-	var increaseSaldoParam dao.CreateTabungTarikReq 
+	var increaseSaldoParam dao.CreateTabungTarikUpdate 
 	increaseSaldoParam.NoRekening = reqPayload.NoRekeningTujuan
 	increaseSaldoParam.Nominal = reqPayload.Nominal
 	_, err = s.Datastore.UpdateSaldo(tx, increaseSaldoParam)

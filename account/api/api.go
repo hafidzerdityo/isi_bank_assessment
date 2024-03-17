@@ -46,11 +46,12 @@ func InitApi(loggerInit *logrus.Logger, dbInit *gorm.DB, kafkaJournalInit startu
 	trx.Use(apiSetup.TransactionMiddleware())
 	inq.Use(apiSetup.TransactionMiddleware())
 	user.Post("/daftar", apiSetup.CreateUser)
+	user.Post("/login", apiSetup.AccountLogin)
 	trx.Post("/tabung", apiSetup.CreateTabung)
 	trx.Post("/tarik", apiSetup.CreateTarik)
 	trx.Post("/transfer", apiSetup.CreateTransfer)
-	inq.Get("/saldo/:no_rekening", apiSetup.GetSaldo)
-	inq.Get("/mutasi/:no_rekening", apiSetup.GetMutasi)
+	inq.Get("/saldo", apiSetup.GetSaldo)
+	inq.Get("/mutasi/", apiSetup.GetMutasi)
 	
 	return 
 }
