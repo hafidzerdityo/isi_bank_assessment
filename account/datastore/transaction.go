@@ -27,6 +27,7 @@ func (d *DatastoreSetup) GetAccount(tx *gorm.DB, noRekening string) (datastoreRe
 
 	datastoreResponseForLog := datastoreResponse
 	datastoreResponseForLog.HashedPin = "*REDACTED*"
+	datastoreResponseForLog.HashedPassword = "*REDACTED*"
 	remark := "END: GetAccount Datastore"
 	d.Logger.Info(
 		logrus.Fields{"response": fmt.Sprintf("%+v", datastoreResponseForLog)}, nil, remark,

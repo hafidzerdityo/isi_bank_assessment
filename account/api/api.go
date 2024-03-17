@@ -43,15 +43,15 @@ func InitApi(loggerInit *logrus.Logger, dbInit *gorm.DB, kafkaJournalInit startu
 	user := v1.Group("/user_management")
 	trx := v1.Group("/transaction")
 	inq := v1.Group("/inquiry")
-	trx.Use(apiSetup.TransactionMiddleware())
-	inq.Use(apiSetup.TransactionMiddleware())
+	trx.Use(apiSetup.JwtDecode())
+	inq.Use(apiSetup.JwtDecode())
 	user.Post("/daftar", apiSetup.CreateUser)
 	user.Post("/login", apiSetup.AccountLogin)
 	trx.Post("/tabung", apiSetup.CreateTabung)
 	trx.Post("/tarik", apiSetup.CreateTarik)
 	trx.Post("/transfer", apiSetup.CreateTransfer)
 	inq.Get("/saldo", apiSetup.GetSaldo)
-	inq.Get("/mutasi/", apiSetup.GetMutasi)
+	inq.Get("/mutasi", apiSetup.GetMutasi)
 	
 	return 
 }

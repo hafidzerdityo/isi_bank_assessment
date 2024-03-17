@@ -3,7 +3,6 @@ package api
 import (
 	"fmt"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
 	"hafidzresttemplate.com/dao"
@@ -12,21 +11,8 @@ import (
 
 func (a *ApiSetup) GetSaldo(c *fiber.Ctx) error {
 	var reqPayload dao.NoRekeningReq
-	decodedJWT, ok := c.Locals("decodedJWT").(*jwt.Token)
-    if !ok {
-        errMsg := "Decoded JWT token not found in context"
-        a.Logger.Error(
-            logrus.Fields{"error": errMsg}, nil, errMsg,
-        )
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "resp_msg":  errMsg,
-            "resp_data": dao.SaldoRes{
-                Saldo: nil,
-            },
-        })
-    }
-	claims := decodedJWT.Claims.(jwt.MapClaims)
-	noRekening := claims["no_rekening"].(string)
+	decodedJWT := c.Locals("decodedJWT").(map[string]interface{})
+	noRekening := decodedJWT["no_rekening"].(string)
 	reqPayload.NoRekening = noRekening
 
     a.Logger.Info(
@@ -71,21 +57,8 @@ func (a *ApiSetup) GetSaldo(c *fiber.Ctx) error {
 
 func (a *ApiSetup) GetMutasi(c *fiber.Ctx) error {
 	var reqPayload dao.NoRekeningReq
-	decodedJWT, ok := c.Locals("decodedJWT").(*jwt.Token)
-    if !ok {
-        errMsg := "Decoded JWT token not found in context"
-        a.Logger.Error(
-            logrus.Fields{"error": errMsg}, nil, errMsg,
-        )
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "resp_msg":  errMsg,
-            "resp_data": dao.SaldoRes{
-                Saldo: nil,
-            },
-        })
-    }
-	claims := decodedJWT.Claims.(jwt.MapClaims)
-	noRekening := claims["no_rekening"].(string)
+	decodedJWT := c.Locals("decodedJWT").(map[string]interface{})
+	noRekening := decodedJWT["no_rekening"].(string)
 	reqPayload.NoRekening = noRekening
 
     a.Logger.Info(

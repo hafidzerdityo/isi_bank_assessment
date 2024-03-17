@@ -9,7 +9,7 @@ import (
 	"hafidzresttemplate.com/pkg/utils"
 )
 
-func (a *ApiSetup) TransactionMiddleware() fiber.Handler {
+func (a *ApiSetup) JwtDecode() fiber.Handler {
     return func(c *fiber.Ctx) error {
         authHeader := c.Get("Authorization")
         parts := strings.Split(authHeader, " ")
@@ -37,6 +37,8 @@ func (a *ApiSetup) TransactionMiddleware() fiber.Handler {
                 "resp_msg":  remark,
             })
         }
+
+		a.Logger.Info(fmt.Sprintf("==========%+v", decodedJWT))
 
         // Store decodedJWT in context locals for later use
         c.Locals("decodedJWT", decodedJWT)

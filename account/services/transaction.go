@@ -209,6 +209,16 @@ func (s *ServiceSetup)CreateTransfer(reqPayload dao.CreateTransferUpdate) (appRe
 		remark = "Error When Initializing DB"
 		return
 	}
+
+	if reqPayload.NoRekeningAsal == reqPayload.NoRekeningTujuan{
+		err = fmt.Errorf("same sender and receiver account number error")
+		remark = "Nomor Rekening pengirim dan penerima tidak boleh sama"
+		s.Logger.Error(
+			logrus.Fields{"error": err.Error()}, nil, remark,
+		)
+		return
+	}
+
 	// check if sender account exist
 	accountSenderData, err := s.Datastore.GetAccount(s.Db, reqPayload.NoRekeningAsal)
 	if err != nil {

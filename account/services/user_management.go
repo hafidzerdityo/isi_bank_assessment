@@ -173,6 +173,7 @@ func (s *ServiceSetup)CreateUser(reqPayload dao.CreateCustReq) (appResponse dao.
 func (s *ServiceSetup)AccountLogin(reqPayload dao.AccountLoginReq) (appResponse dao.AccountLoginRes, remark string, err error) {
 	reqPayloadForLog := reqPayload
 	reqPayloadForLog.Pin = "*REDACTED*"
+	reqPayloadForLog.Password = "*REDACTED*"
 	s.Logger.Info(
 		logrus.Fields{"req_payload": fmt.Sprintf("%+v", reqPayloadForLog)}, nil, "START: AccountLogin Service",
 	)
