@@ -25,6 +25,8 @@ func (a *ApiSetup) JwtDecode() fiber.Handler {
             })
         }
         token := parts[1]
+		a.Logger.Info(logrus.Fields{"JWT_MIDDLEWARE_REQUEST": token}, nil, "START: JwtDecode Middleware",)
+
 
         // Check JWT Token
         isValid, remark, decodedJWT, err := utils.ValidateJWTToken(token)
@@ -38,7 +40,7 @@ func (a *ApiSetup) JwtDecode() fiber.Handler {
             })
         }
 
-		a.Logger.Info(fmt.Sprintf("==========%+v", decodedJWT))
+		a.Logger.Info(logrus.Fields{"JWT_MIDDLEWARE_RESPONSE": fmt.Sprintf("%+v", decodedJWT)}, nil, "END: JwtDecode Middleware",)
 
         // Store decodedJWT in context locals for later use
         c.Locals("decodedJWT", decodedJWT)

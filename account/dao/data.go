@@ -61,8 +61,8 @@ type CheckAccountAndPinReq struct {
 
 type AccountLoginReq struct {
 	Email  string `json:"email" validate:"required"`
-	Pin  string `json:"pin" validate:"required"`
-	Password  string `json:"password" validate:"required"`
+	Pin  string `json:"pin"`
+	Password  string `json:"password"`
 }
 
 type AccountLoginCheckEmailGet struct {

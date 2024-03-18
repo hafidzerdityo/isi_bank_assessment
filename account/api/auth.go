@@ -9,8 +9,9 @@ import (
 	"hafidzresttemplate.com/pkg/utils"
 )
 
-func (a *ApiSetup) CreateUser(c *fiber.Ctx) error {
-	var reqPayload dao.CreateCustReq
+
+func (a *ApiSetup) AccountLogin(c *fiber.Ctx) error {
+	var reqPayload dao.AccountLoginReq
 
     if err := c.BodyParser(&reqPayload); err != nil {
         a.Logger.Error(
@@ -26,8 +27,9 @@ func (a *ApiSetup) CreateUser(c *fiber.Ctx) error {
 
 	reqPayloadForLog := reqPayload
 	reqPayloadForLog.Pin = "*REDACTED*"
+	reqPayloadForLog.Password = "*REDACTED*"
     a.Logger.Info(
-        logrus.Fields{"req_payload": fmt.Sprintf("%+v", reqPayloadForLog)}, nil, "START: CreateUser API",
+        logrus.Fields{"req_payload": fmt.Sprintf("%+v", reqPayloadForLog)}, nil, "START: AccountLogin API",
     )
 
     // Validate request payload
@@ -43,7 +45,7 @@ func (a *ApiSetup) CreateUser(c *fiber.Ctx) error {
         })
     }
 
-    data, remark, err := a.Services.CreateUser(reqPayload)
+    data, remark, err := a.Services.AccountLogin(reqPayload)
     if err != nil {
         a.Logger.Error(
             logrus.Fields{"error": err.Error()}, nil, remark,
@@ -55,14 +57,13 @@ func (a *ApiSetup) CreateUser(c *fiber.Ctx) error {
     }
 
 	response := map[string]interface{}{
-        "resp_msg" : "Create User Data Succeed",
+        "resp_msg" : "Login Succeed",
         "resp_data" : data,
 	}
 
-	remark = "END: CreateUser API"
+	remark = "END: AccountLogin API"
     a.Logger.Info(
         logrus.Fields{"response": fmt.Sprintf("%+v", response)}, nil, remark,
     )
     return c.JSON(response)
 }
-
